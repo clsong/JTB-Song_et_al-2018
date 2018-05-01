@@ -334,6 +334,17 @@ Omega_overlap <- function(A, B) {
 }
 
 # function that generates a random matrix (as in May, Nature (1972))
+# inputs: alpha = interaction matrix; inequality = biological linear ineqaulity
+# output: the size of the constrained feasibility domain
+Omega_with_inequality_constraints <- function(alpha, inequality){
+  beta <- alpha
+  for(j in 1:ncol(alpha)){
+    beta[,j] <- -alpha[,j] / (-alpha[,j] %*% inequality)
+  }
+  abs(det(beta))
+}
+
+# function that generates a random matrix (as in May, Nature (1972))
 # inputs: num = number of species; stren = standard deviation of interaction strength; conne = connectance of the interaction matrix
 # output: Inte = the generated random matrix
 interaction_matrix_random <- function(num, stren, conne){
