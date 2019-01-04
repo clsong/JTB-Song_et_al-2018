@@ -20,11 +20,11 @@ Omega <- function(alpha) {
     out <- d[1]^(1 / S)
     return(out)
   }
-  if (length(which(diag(alpha) == 0)) == 0) {
-    Sigma <- chol2inv(alpha, size = NCOL(alpha), LINPACK = FALSE)
-    return(omega(S, Sigma))
-  }
-  else {
+#   if (length(which(diag(alpha) == 0)) == 0) {
+#     Sigma <- chol2inv(alpha, size = NCOL(alpha), LINPACK = FALSE)
+#     return(omega(S, Sigma))
+#   }
+#   else {
     f <- function(m) class(try(solve(t(m) %*% m), silent = T)) == "matrix"
     if (f(alpha) == FALSE) {
       return(0)
@@ -33,7 +33,8 @@ Omega <- function(alpha) {
       Sigma <- solve(t(alpha) %*% alpha)
       return(omega(S, Sigma))
     }
-  }
+#   }
+# }
 }
 
 # function that normalizes a vector in the L2 norm
