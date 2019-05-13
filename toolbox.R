@@ -317,6 +317,22 @@ total_volume <- function(partition, vertex) {
   sum(vol^num)^(1 / num)
 }
 
+sampling_overlap <- function(A,B){
+  mat <- B %*% solve(A)
+  Nsample <- 10^5
+  abunbance_all <- rmvnorm(n = Nsample, mean = rep(0, nrow(A))) %>% 
+    {abs(./sqrt(rowSums(.^2)))}
+  get_feasibility <- function(N_A){
+    N_B <- mat %*% matrix(N_A,ncol=1) %>% c()
+    if_else(sum(N_B >= -1e-10) == length(N_B), 1, 0) 
+  }
+  percent <- 1:Nsample %>% 
+    map_dbl(~get_feasibility(abunbance_all[.x,])) %>% 
+    mean()
+  Omega(A) * percent^(1/nrow(A))
+}
+
+
 # function that computes the overlap of two feasibility domains
 # inputs: A = one interaction matrix, B = another interaction matrix
 # output: volume_overlap = the normalize feasibility of the intersection region
@@ -331,6 +347,7 @@ Omega_overlap <- function(A, B) {
     volume_overlap <- total_volume(partition, overlap_vertex)
   }
 
+  volume_overlap <- sampling_overlap(A,B)
   volume_overlap
 }
 
@@ -355,4 +372,27 @@ interaction_matrix_random <- function(num, stren, conne){
   Inte <- matrix(Inte, ncol = num, nrow = num)
   diag(Inte) <- -1
   return(Inte)
+}
+
+
+
+# A <- c(-1.00000000,  -0.6381123, -0.7345733, -1.0000000) %>% 
+#   matrix(ncol=2)
+# get_N <- function(){
+#   theta <- runif(1, 0, pi/2)
+#   r <- c(cos(theta), sin(theta))
+#   # N <- 
+#   - A %*% r %>% 
+#     t() %>% 
+#     as_tibble()
+# }
+# 1:1000 %>% 
+#   map_dfr(~get_N()) %>% 
+#   ggplot(aes(V1,V2))+
+#   geom_point()
+
+parameterization_feasible <- function(A, num){
+  lambda <- runif(num, min = 0, max = 1)
+  lambda <- lambda/sum(lambda)
+  -solve(A, lambda)
 }
