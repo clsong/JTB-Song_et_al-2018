@@ -318,7 +318,7 @@ total_volume <- function(partition, vertex) {
 }
 
 sampling_overlap <- function(A,B){
-  mat <- B %*% solve(A)
+  mat <- solve(B) %*% A
   Nsample <- 10^5
   abunbance_all <- rmvnorm(n = Nsample, mean = rep(0, nrow(A))) %>% 
     {abs(./sqrt(rowSums(.^2)))}
@@ -391,8 +391,22 @@ interaction_matrix_random <- function(num, stren, conne){
 #   ggplot(aes(V1,V2))+
 #   geom_point()
 
+# parameterization_feasible <- function(A, num){
+#   lambda <- runif(num, min = 0, max = 1)
+#   lambda <- lambda/sum(lambda)
+#   -solve(A, lambda)
+# }
+
+spanned_vectors <- function(A, num){
+  G <- matrix(0, ncol=ncol(A), nrow=nrow(A))
+  for(k in 1:num) G[,k] <- -A[,k]/sqrt(sum(A[,k]^2))
+  G
+}
+
 parameterization_feasible <- function(A, num){
+  G <- spanned_vectors(A, num)
   lambda <- runif(num, min = 0, max = 1)
   lambda <- lambda/sum(lambda)
-  -solve(A, lambda)
+  growth <- G %*% matrix(lambda, ncol=1) %>%
+    as.vector()
 }
